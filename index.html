@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=210mm, initial-scale=1.0">
+<title>Engagement Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f4f1eb;
+    --surface:   #faf8f4;
+    --card:      #ffffff;
+    --border:    #e2ddd6;
+    --border-dk: #c8c0b4;
+    --gold:      #8c6d2f;
+    --gold-lt:   #b8893c;
+    --gold-dk:   #5c4518;
+    --gold-bg:   #f9f3e8;
+    --red:       #c0392b;
+    --red-bg:    #fdf0ee;
+    --green:     #2e7d5e;
+    --green-bg:  #eef7f3;
+    --blue:      #2563a8;
+    --blue-bg:   #eef4fc;
+    --muted:     #a09888;
+    --text:      #2a2420;
+    --text-dim:  #7a6e64;
+    --text-sub:  #9e9288;
+    --rail:      #2a3f5f;
+    --shadow:    0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { background: #e8e4dc; min-height: 100%; }
+
+  @page { size: A4 portrait; margin: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    width: 210mm;
+    min-height: 297mm;
+    overflow-x: hidden;
+    margin: 0 auto;
+    box-shadow: 0 0 40px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TRACK ── */
+  .track-top {
+    height: 5px;
+    background: linear-gradient(90deg, var(--gold-dk), var(--gold-lt), var(--gold-dk));
+    flex-shrink: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .track-stripe {
+    height: 3px;
+    background: repeating-linear-gradient(90deg,
+      var(--rail) 0px, var(--rail) 20px,
+      transparent 20px, transparent 28px);
+    opacity: .25;
+    flex-shrink: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .title-block h1 {
+    font-family:'Playfair Display', serif;
+    font-size:17px; font-weight:900;
+    color: var(--text);
+    letter-spacing:.01em;
+    line-height:1.1;
+  }
+  .title-block p {
+    font-size:9px; font-weight:500;
+    color: var(--text-sub);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    margin-top:3px;
+  }
+  .header-right { text-align:right; }
+  #date-display {
+    font-family:'Playfair Display', serif;
+    font-size:15px; font-weight:700;
+    color: var(--text);
+    letter-spacing:.01em;
+  }
+  #date-sub {
+    font-size:10px; color:var(--text-sub);
+    letter-spacing:.06em;
+    margin-top:2px;
+  }
+  .sync-status {
+    font-size:9px; color:var(--muted);
+    margin-top:3px; letter-spacing:.04em;
+  }
+  .sync-dot {
+    display:inline-block; width:6px; height:6px;
+    border-radius:50%; background:var(--green);
+    margin-right:4px; vertical-align:middle;
+    animation: pulse 2s infinite;
+  }
+  .sync-dot.syncing { background:var(--gold-lt); }
+  .sync-dot.error   { background:var(--red); animation:none; }
+  @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+
+  /* ── MAIN ── */
+  main {
+    padding: 14px 20px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-size:8px; font-weight:700;
+    letter-spacing:.18em; text-transform:uppercase;
+    color: var(--gold);
+    margin-bottom:7px;
+    display:flex; align-items:center; gap:8px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .section-label::after {
+    content:''; flex:1; height:1px;
+    background: linear-gradient(90deg, var(--border-dk), transparent);
+  }
+
+  /* ── TODAY CARD ── */
+  .today-card {
+    background: var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow: var(--shadow);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .today-header {
+    background: linear-gradient(90deg, var(--rail) 0%, #1e3050 100%);
+    padding:10px 16px;
+    display:flex; align-items:center;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .today-date-badge {
+    background: var(--gold-lt);
+    color: #fff;
+    font-family:'Playfair Display',serif;
+    font-size:22px; font-weight:900;
+    width:44px; height:44px;
+    border-radius:7px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .today-meta { margin-left:12px; }
+  .today-meta .day-name  { font-size:13px; font-weight:600; color:#fff; }
+  .today-meta .month-year{ font-size:9px; color:rgba(255,255,255,.55); letter-spacing:.06em; margin-top:2px; }
+
+  /* Today's list */
+  .today-list { padding:8px 12px; }
+
+  .engagement-row {
+    display:flex; align-items:flex-start; gap:8px;
+    padding:7px 8px; border-radius:7px;
+    margin-bottom:3px;
+    border-left:3px solid transparent;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .engagement-row.prio-high { border-color:var(--red); }
+  .engagement-row.prio-med  { border-color:var(--gold-lt); }
+  .engagement-row.prio-low  { border-color:var(--green); }
+
+  .eng-time {
+    font-family:'DM Mono',monospace;
+    font-size:10px; color:var(--gold);
+    white-space:nowrap; padding-top:2px;
+    min-width:38px;
+  }
+  .eng-body { flex:1; }
+  .eng-title { font-size:12px; font-weight:500; color:var(--text); line-height:1.3; }
+  .eng-sub   { font-size:9px; color:var(--text-sub); margin-top:1px; }
+  .eng-badge {
+    font-size:8px; font-weight:600; letter-spacing:.05em;
+    padding:2px 7px; border-radius:20px;
+    text-transform:uppercase; flex-shrink:0;
+    align-self:flex-start; margin-top:2px;
+    border:1px solid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .badge-meeting { background:var(--blue-bg);  color:var(--blue);  border-color:#ccdff6; }
+  .badge-visit   { background:var(--green-bg); color:var(--green); border-color:#c2e5d6; }
+  .badge-conf    { background:var(--gold-bg);  color:var(--gold);  border-color:#e8d9ba; }
+  .badge-review  { background:var(--red-bg);   color:var(--red);   border-color:#f2c8c4; }
+  .badge-other   { background:var(--bg);        color:var(--muted); border-color:var(--border); }
+
+  .empty-state {
+    text-align:center; padding:22px 16px;
+    color:var(--muted); font-size:11px;
+  }
+  .empty-state .icon { font-size:22px; margin-bottom:6px; }
+
+  /* ── UPCOMING PANEL ── */
+  .upcoming-list {
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:8px;
+  }
+  .upcoming-card {
+    background: var(--card);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:9px 10px 9px 13px;
+    position:relative; overflow:hidden;
+    box-shadow: var(--shadow-sm);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .upcoming-card .uc-stripe {
+    position:absolute; top:0; left:0;
+    width:4px; height:100%;
+    border-radius:8px 0 0 8px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .upcoming-card .uc-date  { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:var(--text); }
+  .upcoming-card .uc-month { font-size:9px; color:var(--text-sub); letter-spacing:.08em; text-transform:uppercase; }
+  .upcoming-card .uc-title { font-size:11px; font-weight:500; margin-top:5px; color:var(--text); line-height:1.3; }
+  .upcoming-card .uc-time  { font-family:'DM Mono',monospace; font-size:9px; color:var(--text-sub); margin-top:3px; }
+
+  /* ── PRINT FOOTER ── */
+  .print-footer {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 6px 24px;
+    font-size: 9px;
+    color: var(--text-sub);
+    letter-spacing: .05em;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── SCREEN BOTTOM BAR ── */
+  .bottom-bar {
+    background: var(--card);
+    border-top:1px solid var(--border);
+    padding:7px 22px;
+    display:flex; align-items:center; gap:10px;
+    font-size:10px;
+    color: var(--text-sub);
+    flex-shrink: 0;
+  }
+  .bottom-bar .reload-info {
+    margin-left:auto;
+    font-family:'DM Mono',monospace;
+    font-size:9px; color:var(--muted);
+  }
+  .btn-sm {
+    background: var(--gold-bg);
+    color: var(--gold-dk); font-weight:700; font-size:9px;
+    letter-spacing:.06em; text-transform:uppercase;
+    padding:4px 10px; border-radius:5px;
+    border:1px solid rgba(140,109,47,.3);
+    cursor:pointer; transition:background .2s;
+  }
+  .btn-sm:hover { background:#f0e4c8; }
+
+  /* ── PRINT ── */
+  @media print {
+    html { background: #fff; }
+    body { width:210mm; min-height:297mm; max-height:297mm; box-shadow:none; margin:0; overflow:hidden; }
+    .bottom-bar { display: none !important; }
+    .print-footer { display: flex; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
+
+  ::-webkit-scrollbar{width:3px;height:3px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border-dk);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<script>
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/1sj4pPxk0cLVsJ12aUXnytWJuw1sxUVSRD2MOK4hTgAU/edit?gid=0#gid=0";
+</script>
+
+<div class="track-top"></div>
+<div class="track-stripe"></div>
+
+<header>
+  <div class="title-block">
+    <h1>Engagement Schedule</h1>
+    <p>GM Office, RCF Kapurthala</p>
+  </div>
+  <div class="header-right">
+    <div id="date-display">Loading…</div>
+    <div id="date-sub"></div>
+    <div class="sync-status">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span id="sync-label">Initialising…</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- TODAY -->
+  <div>
+    <div class="section-label">Today's Schedule</div>
+    <div class="today-card">
+      <div class="today-header">
+        <div class="today-date-badge" id="hdr-day">--</div>
+        <div class="today-meta">
+          <div class="day-name" id="hdr-dayname">---</div>
+          <div class="month-year" id="hdr-monthyr">---</div>
+        </div>
+      </div>
+      <div class="today-list" id="today-list">
+        <div class="empty-state"><div class="icon">⏳</div>Loading schedule…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPCOMING -->
+  <div>
+    <div class="section-label">Upcoming Engagements</div>
+    <div class="upcoming-list" id="upcoming-list">
+      <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:16px;">Loading…</div>
+    </div>
+  </div>
+</main>
+
+<div class="bottom-bar">
+  <span>🚂 &nbsp;Auto-syncs every 10 minutes from Google Sheets</span>
+  <button class="btn-sm" onclick="triggerReload()">⟳ Refresh Now</button>
+  <button class="btn-sm" onclick="window.print()" style="margin-left:4px;">🖨 Print</button>
+  <span class="reload-info" id="next-reload">Next sync: —</span>
+</div>
+
+<div class="print-footer">
+  <span>🚂 GM Office, RCF Kapurthala — Engagement Schedule</span>
+  <span id="print-date-footer"></span>
+</div>
+
+<script>
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const SMONTH = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const RELOAD_INTERVAL_MS = 10 * 60 * 1000;
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+const NOW = new Date();
+
+function getWeekNumber(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7));
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
+}
+
+function updateDateDisplay(){
+  const n = new Date();
+  document.getElementById('date-display').textContent =
+    `${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
+  document.getElementById('date-sub').textContent =
+    `Week ${getWeekNumber(n)} of ${n.getFullYear()}`;
+  document.getElementById('print-date-footer').textContent =
+    `Printed: ${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
+}
+updateDateDisplay();
+setInterval(updateDateDisplay, 60000);
+
+document.getElementById('hdr-day').textContent     = NOW.getDate();
+document.getElementById('hdr-dayname').textContent = DAYS[NOW.getDay()];
+document.getElementById('hdr-monthyr').textContent = `${MONTHS[NOW.getMonth()]} ${NOW.getFullYear()}`;
+
+function setSyncState(state, msg){
+  document.getElementById('sync-dot').className = 'sync-dot' + (state==='syncing'?' syncing':state==='error'?' error':'');
+  document.getElementById('sync-label').textContent = msg;
+}
+
+let nextReloadAt = null;
+function updateCountdown(){
+  if(!nextReloadAt) return;
+  const diff = Math.max(0, nextReloadAt - Date.now());
+  const m = Math.floor(diff/60000), s = Math.floor((diff%60000)/1000);
+  document.getElementById('next-reload').textContent = `Next sync: ${pad(m)}:${pad(s)}`;
+}
+setInterval(updateCountdown, 1000);
+
+let events = [];
+
+function toLocalMidnight(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function todayMidnight(){ return toLocalMidnight(new Date()); }
+function sameDay(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+
+function parseCSV(raw){
+  const lines = raw.split(/\r?\n/).filter(l=>l.trim());
+  if(!lines.length) return [];
+  const header = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/"/g,''));
+  const idx = {
+    date:     header.findIndex(h=>h==='date'),
+    time:     header.findIndex(h=>h==='time'),
+    title:    header.findIndex(h=>h.includes('title')||h.includes('engagement')||h.includes('subject')),
+    location: header.findIndex(h=>h.includes('location')||h.includes('venue')||h.includes('place')),
+    type:     header.findIndex(h=>h==='type'||h.includes('category')),
+    priority: header.findIndex(h=>h.includes('priority')),
+  };
+  const parsed=[];
+  for(let i=1;i<lines.length;i++){
+    const cols=splitCSVLine(lines[i]);
+    const dateStr=idx.date>=0?cols[idx.date]?.replace(/"/g,'').trim():'';
+    if(!dateStr) continue;
+    const d=parseDate(dateStr);
+    if(!d||isNaN(d)) continue;
+    parsed.push({
+      date:d,
+      time:     idx.time>=0    ?(cols[idx.time]||'').replace(/"/g,'').trim()    :'',
+      title:    idx.title>=0   ?(cols[idx.title]||'').replace(/"/g,'').trim()   :'Engagement',
+      location: idx.location>=0?(cols[idx.location]||'').replace(/"/g,'').trim():'',
+      type:     idx.type>=0    ?(cols[idx.type]||'').replace(/"/g,'').trim()    :'Other',
+      priority: idx.priority>=0?(cols[idx.priority]||'').replace(/"/g,'').trim().toLowerCase():'med',
+    });
+  }
+  return parsed;
+}
+
+function splitCSVLine(line){
+  const r=[]; let cur=''; let inQ=false;
+  for(let c of line){ if(c==='"'){inQ=!inQ;} else if(c===','&&!inQ){r.push(cur);cur='';} else{cur+=c;} }
+  r.push(cur); return r;
+}
+
+function parseDate(s){
+  s=s.trim(); let m;
+  if((m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/))) return new Date(+m[3],+m[2]-1,+m[1]);
+  if((m=s.match(/^(\d{4})[\/\-](\d{2})[\/\-](\d{2})$/)))      return new Date(+m[1],+m[2]-1,+m[3]);
+  if((m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)))           return new Date(+m[3],+m[1]-1,+m[2]);
+  const raw=new Date(s); if(!isNaN(raw)) return new Date(raw.getFullYear(),raw.getMonth(),raw.getDate());
+  return null;
+}
+
+function convertGSheetUrl(url){
+  if(!url||url.trim()==='YOUR_GOOGLE_SHEET_URL_HERE') return null;
+  if(url.includes('output=csv')||url.includes('pub?')) return url;
+  const m=url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if(m){ const gid=(url.match(/[#&?]gid=(\d+)/)||[])[1]||'0'; return `https://docs.google.com/spreadsheets/d/${m[1]}/export?format=csv&gid=${gid}`; }
+  return url;
+}
+
+const PROXIES=[
+  u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+];
+
+async function fetchWithCORS(rawUrl){
+  try{ const r=await fetch(rawUrl,{signal:AbortSignal.timeout(6000)}); if(r.ok) return await r.text(); }catch(_){}
+  for(const proxy of PROXIES){
+    try{
+      const r=await fetch(proxy(rawUrl),{signal:AbortSignal.timeout(9000)});
+      if(r.ok){ const text=await r.text(); if(text.trim().startsWith('{"contents"')) return JSON.parse(text).contents; return text; }
+    }catch(_){}
+  }
+  throw new Error('All fetch attempts failed');
+}
+
+async function loadData(isAutoReload=false){
+  const url=convertGSheetUrl(SHEET_URL);
+  if(!url){ loadSample(); setSyncState('error','No sheet URL — showing sample data'); return; }
+  setSyncState('syncing',isAutoReload?'Auto-syncing…':'Syncing…');
+  try{
+    const text=await fetchWithCORS(url);
+    events=parseCSV(text); renderAll();
+    const t=new Date(); setSyncState('ok',`Last synced ${pad(t.getHours())}:${pad(t.getMinutes())}`);
+  }catch(e){ setSyncState('error',`Sync failed — ${e.message.slice(0,40)}`); loadSample(); }
+  nextReloadAt=Date.now()+RELOAD_INTERVAL_MS; updateCountdown();
+}
+function triggerReload(){ loadData(false); }
+setInterval(()=>loadData(true),RELOAD_INTERVAL_MS);
+
+function typeClass(t){ const tl=(t||'').toLowerCase(); if(tl.includes('meet')) return 'badge-meeting'; if(tl.includes('visit')||tl.includes('inspect')) return 'badge-visit'; if(tl.includes('conf')||tl.includes('seminar')||tl.includes('workshop')) return 'badge-conf'; if(tl.includes('review')||tl.includes('audit')) return 'badge-review'; return 'badge-other'; }
+function prioClass(p){ const pl=(p||'').toLowerCase(); if(pl==='high') return 'prio-high'; if(pl==='low') return 'prio-low'; return 'prio-med'; }
+function stripeColor(t){ const tl=(t||'').toLowerCase(); if(tl.includes('visit')||tl.includes('inspect')) return 'var(--green)'; if(tl.includes('conf')||tl.includes('seminar')) return 'var(--gold-lt)'; if(tl.includes('review')||tl.includes('audit')) return 'var(--red)'; return 'var(--blue)'; }
+
+function renderAll(){
+  const today=new Date();
+  const todayEvts=events.filter(e=>sameDay(e.date,today)).sort((a,b)=>a.time.localeCompare(b.time));
+
+  const tl=document.getElementById('today-list');
+  if(!todayEvts.length){
+    tl.innerHTML='<div class="empty-state"><div class="icon">✅</div>No engagements scheduled today.</div>';
+  } else {
+    tl.innerHTML=todayEvts.map(e=>`
+      <div class="engagement-row ${prioClass(e.priority)}">
+        <div class="eng-time">${e.time||'--:--'}</div>
+        <div class="eng-body">
+          <div class="eng-title">${e.title}</div>
+          ${e.location?`<div class="eng-sub">📍 ${e.location}</div>`:''}
+        </div>
+        <span class="eng-badge ${typeClass(e.type)}">${e.type||'Other'}</span>
+      </div>`).join('');
+  }
+
+  const todayMid=todayMidnight();
+  const upcoming=events.filter(e=>toLocalMidnight(e.date)>todayMid).sort((a,b)=>a.date-b.date||a.time.localeCompare(b.time)).slice(0,6);
+
+  const ul=document.getElementById('upcoming-list');
+  if(!upcoming.length){
+    ul.innerHTML='<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:16px;">No upcoming engagements</div>';
+  } else {
+    ul.innerHTML=upcoming.map(e=>`
+      <div class="upcoming-card">
+        <div class="uc-stripe" style="background:${stripeColor(e.type)}"></div>
+        <div class="uc-date">${e.date.getDate()}</div>
+        <div class="uc-month">${SMONTH[e.date.getMonth()]} ${e.date.getFullYear()}</div>
+        <div class="uc-title">${e.title}</div>
+        <div class="uc-time">${e.time||'Time TBD'} ${e.location?'• '+e.location:''}</div>
+      </div>`).join('');
+  }
+}
+
+function loadSample(){
+  const n=new Date(); const y=n.getFullYear(),mo=n.getMonth(),nd=n.getDate();
+  const d=(day)=>new Date(y,mo,day); const t=(h,m)=>`${pad(h)}:${pad(m)}`;
+  events=[
+    {date:d(nd),   time:t(9,30), title:'Divisional Managers Briefing',                   location:'Conference Room A, HQ',         type:'Meeting',   priority:'high'},
+    {date:d(nd),   time:t(11,0), title:'Infrastructure Review — Goods Shed Modernisation',location:'Yard Office',                   type:'Review',    priority:'high'},
+    {date:d(nd),   time:t(14,0), title:'Parliamentary Committee Interaction (Virtual)',   location:'Video Conference',               type:'Conference',priority:'med'},
+    {date:d(nd),   time:t(16,30),title:'Press Briefing — New Train Services',             location:'Media Centre',                   type:'Other',     priority:'med'},
+    {date:d(nd+1), time:t(10,0), title:'Site Visit — Platform Expansion, Ambala',         location:'Ambala Station',                 type:'Site Visit',priority:'high'},
+    {date:d(nd+2), time:t(9,0),  title:'Safety Audit — Loco Maintenance Depot',           location:'Ludhiana Depot',                 type:'Review',    priority:'high'},
+    {date:d(nd+3), time:t(11,30),title:'Staff Welfare Meeting',                           location:'Training Institute, Chandigarh', type:'Meeting',   priority:'low'},
+    {date:d(nd+4), time:t(9,0),  title:'Zonal Railway Conference, New Delhi',              location:'Rail Bhawan, New Delhi',         type:'Conference',priority:'high'},
+    {date:d(nd+5), time:t(15,0), title:'Inauguration — Passenger Amenities Upgrade',      location:'Jalandhar City Station',          type:'Site Visit',priority:'med'},
+    {date:d(nd+7), time:t(10,30),title:'Review of Revenue Performance — Q3',              location:'HQ Board Room',                  type:'Review',    priority:'high'},
+    {date:d(nd+9), time:t(14,0), title:'Workshop: Cybersecurity in Railway IT',            location:'IRISET, Secunderabad',            type:'Conference',priority:'low'},
+    {date:d(nd+12),time:t(9,0),  title:'Bridge Inspection — Beas River',                  location:'Beas, Punjab',                   type:'Site Visit',priority:'med'},
+  ];
+  renderAll();
+}
+
+loadData(false);
+</script>
+</body>
+</html>
