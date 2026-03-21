@@ -4,328 +4,322 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=210mm, initial-scale=1.0">
 <title>Engagement Calendar</title>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,800;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:        #ffffff;
-    --surface:   #ffffff;
-    --card:      #ffffff;
-    --border:    #d8d3cc;
-    --border-dk: #b8b0a4;
-    --gold:      #7a5c22;
-    --gold-lt:   #9e7530;
-    --gold-dk:   #4e3510;
-    --gold-bg:   #fdf8ef;
-    --red:       #b03020;
-    --red-bg:    #fdf2f0;
-    --green:     #1f6b4a;
-    --green-bg:  #eef6f2;
-    --blue:      #1a5490;
-    --blue-bg:   #eef3fa;
-    --muted:     #9a9088;
-    --text:      #1a1410;
-    --text-dim:  #6a5e54;
-    --text-sub:  #8e8278;
-    --rail:      #1e3050;
-    --shadow:    0 1px 3px rgba(0,0,0,.07), 0 3px 10px rgba(0,0,0,.05);
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+    --bg: #ffffff;
+    --surface: #fafafa;
+    --border: #e8e8e8;
+    --border-strong: #d0d0d0;
+    --text: #0a0a0a;
+    --text-2: #4a4a4a;
+    --text-3: #9a9a9a;
+    --accent: #0a0a0a;
+    --red: #c0392b;
+    --amber: #b8860b;
+    --green: #1a6b3a;
+    --blue: #1a4a8a;
+    --badge-red-bg: #fef2f2; --badge-red-txt: #991b1b;
+    --badge-amber-bg: #fffbeb; --badge-amber-txt: #92400e;
+    --badge-green-bg: #f0fdf4; --badge-green-txt: #14532d;
+    --badge-blue-bg: #eff6ff; --badge-blue-txt: #1e3a8a;
+    --badge-gray-bg: #f4f4f4; --badge-gray-txt: #4a4a4a;
   }
-
   * { margin:0; padding:0; box-sizing:border-box; }
-  html { background: #ddd; min-height: 100%; }
-  @page { size: A4 portrait; margin: 0; }
-
+  html { background:#f0f0f0; }
+  @page { size:A4 portrait; margin:0; }
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    width: 210mm;
-    min-height: 297mm;
-    overflow-x: hidden;
-    margin: 0 auto;
-    box-shadow: 0 0 40px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    width:210mm;
+    min-height:297mm;
+    margin:0 auto;
+    box-shadow:0 0 60px rgba(0,0,0,0.08);
+    display:flex;
+    flex-direction:column;
   }
 
-  /* ── TRACK ── */
-  .track-top {
-    height: 5px;
-    background: linear-gradient(90deg, var(--gold-dk), var(--gold-lt), var(--gold-dk));
-    flex-shrink: 0;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-  .track-stripe {
-    height: 2px;
-    background: repeating-linear-gradient(90deg,
-      var(--rail) 0px, var(--rail) 20px,
-      transparent 20px, transparent 28px);
-    opacity: .18;
-    flex-shrink: 0;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-
-  /* ── HEADER ── */
+  /* HEADER */
   header {
-    background: var(--card);
-    border-bottom: 2px solid var(--border-dk);
-    padding: 14px 24px 12px;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-shrink: 0;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    padding:28px 36px 24px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
   }
-  .title-block { display: flex; flex-direction: column; gap: 0; }
-  .title-block .org-line {
-    font-family: 'EB Garamond', serif;
-    font-size: 9px; font-weight: 400;
-    letter-spacing: .22em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 4px;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  .org-label {
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color:var(--text-3);
+    margin-bottom:8px;
   }
-  .title-block h1 {
-    font-family: 'EB Garamond', serif;
-    font-size: 22px; font-weight: 800;
-    color: var(--rail); letter-spacing: .01em; line-height: 1.05;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  .brand-title {
+    font-family:'Inter Tight', sans-serif;
+    font-size:28px;
+    font-weight:800;
+    color:var(--text);
+    letter-spacing:-.02em;
+    line-height:1;
   }
-  .title-block .title-rule {
-    margin-top: 5px; height: 1.5px; width: 100%;
-    background: linear-gradient(90deg, var(--gold-lt), var(--border));
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-  .title-block .title-sub {
-    margin-top: 4px;
-    font-family: 'EB Garamond', serif;
-    font-size: 16px; font-style: italic;
-    color: var(--text-dim); letter-spacing: .03em;
-  }
-  .header-right { text-align: right; }
+  .header-right { text-align:right; }
   #date-display {
-    font-family: 'EB Garamond', serif;
-    font-size: 16px; font-weight: 600;
-    color: var(--text); letter-spacing: .01em;
+    font-family:'Inter Tight', sans-serif;
+    font-size:15px;
+    font-weight:600;
+    color:var(--text);
   }
-  #date-sub { font-size: 12px; color: var(--text-sub); letter-spacing: .06em; margin-top: 2px; }
-  .sync-status { font-size: 9px; color: var(--muted); margin-top: 3px; letter-spacing: .04em; }
+  #date-sub {
+    font-size:11px;
+    color:var(--text-3);
+    margin-top:3px;
+    letter-spacing:.05em;
+  }
+  .sync-row {
+    display:flex;
+    align-items:center;
+    gap:5px;
+    margin-top:6px;
+    justify-content:flex-end;
+  }
   .sync-dot {
-    display: inline-block; width: 6px; height: 6px;
-    border-radius: 50%; background: var(--green);
-    margin-right: 4px; vertical-align: middle;
-    animation: pulse 2s infinite;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--green);
+    flex-shrink:0;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
   }
-  .sync-dot.syncing { background: var(--gold-lt); }
-  .sync-dot.error   { background: var(--red); animation: none; }
-  @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+  .sync-dot.syncing { background:var(--amber); }
+  .sync-dot.error   { background:var(--red); }
+  #sync-label { font-size:10px; color:var(--text-3); }
 
-  /* ── MAIN ── */
-  main {
-    padding: 14px 20px 10px;
-    display: flex; flex-direction: column; gap: 12px;
-    flex: 1;
-  }
+  /* MAIN */
+  main { padding:28px 36px 20px; flex:1; display:flex; flex-direction:column; gap:28px; }
 
-  /* ── SECTION LABELS ── */
-  .section-label {
-    font-size: 10px; font-weight: 700;
-    letter-spacing: .18em; text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 7px;
-    display: flex; align-items: center; gap: 8px;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  /* SECTION HEADER */
+  .section-head {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
   }
-  .section-label::after {
-    content: ''; flex: 1; height: 1px;
-    background: linear-gradient(90deg, var(--border-dk), transparent);
+  .section-title {
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--text-3);
   }
 
-  /* ── TODAY CARD ── */
-  .today-card {
-    background: var(--card);
-    border: 1.5px solid var(--border-dk);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(30,48,80,.10), 0 1px 3px rgba(0,0,0,.06);
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  /* TODAY AREA */
+  .today-date-bar {
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:20px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--border);
+  }
+  .today-num {
+    font-family:'Inter Tight', sans-serif;
+    font-size:56px;
+    font-weight:800;
+    color:var(--text);
+    line-height:1;
+    letter-spacing:-.03em;
+  }
+  .today-dayblock { display:flex; flex-direction:column; gap:2px; }
+  .today-dayname {
+    font-family:'Inter Tight', sans-serif;
+    font-size:18px;
+    font-weight:700;
+    color:var(--text);
+    line-height:1;
+  }
+  .today-monthyr {
+    font-size:12px;
+    color:var(--text-3);
+    font-weight:400;
+  }
+  #today-count {
+    margin-left:auto;
+    font-size:11px;
+    color:var(--text-3);
+    font-weight:400;
+    align-self:flex-end;
+    padding-bottom:2px;
   }
 
-  .today-header {
-    background: var(--rail);
-    padding: 13px 20px;
-    display: flex; align-items: center; gap: 14px;
-    border-bottom: 2px solid var(--gold-lt);
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  /* ENGAGEMENT ROWS */
+  .eng-list { display:flex; flex-direction:column; gap:1px; }
+
+  .eng-row {
+    display:flex;
+    align-items:stretch;
+    padding:13px 0;
+    border-bottom:1px solid var(--border);
+    gap:18px;
   }
-  .today-date-badge {
-    background: var(--gold-lt);
-    color: #fff;
-    font-family: 'EB Garamond', serif;
-    font-size: 26px; font-weight: 800;
-    width: 52px; height: 52px;
-    border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,.22);
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  .eng-row:last-child { border-bottom:none; }
+
+  .eng-prio-dot {
+    width:6px; height:6px;
+    border-radius:50%;
+    flex-shrink:0;
+    margin-top:5px;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
   }
-  .today-meta { flex: 1; }
-  .today-meta .day-name   { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: .01em; }
-  .today-meta .month-year { font-size: 10px; color: rgba(255,255,255,.5); letter-spacing: .08em; text-transform: uppercase; margin-top: 3px; }
-  .today-count {
-    font-size: 9px; color: rgba(255,255,255,.55);
-    letter-spacing: .05em; text-align: right;
-    padding: 4px 10px; border-radius: 20px;
-    border: 1px solid rgba(255,255,255,.15);
-    background: rgba(255,255,255,.07);
-    white-space: nowrap;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  .prio-high .eng-prio-dot { background:var(--red); }
+  .prio-med  .eng-prio-dot { background:var(--amber); }
+  .prio-low  .eng-prio-dot { background:var(--green); }
+
+  .eng-time {
+    font-family:'Inter Tight', monospace;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-3);
+    min-width:44px;
+    flex-shrink:0;
+    padding-top:1px;
+    letter-spacing:.02em;
   }
 
-  /* Today list container */
-  .today-list {
-    padding: 10px 14px 12px;
-    display: flex; flex-direction: column; gap: 5px;
+  .eng-content { flex:1; min-width:0; }
+  .eng-title {
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    line-height:1.35;
+  }
+  .eng-location {
+    font-size:11px;
+    color:var(--text-3);
+    margin-top:3px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
 
-  /* Each engagement row — card-style */
-  .engagement-row {
-    display: flex; align-items: stretch;
-    border-radius: 8px; overflow: hidden;
-    border: 1px solid var(--border);
-    background: var(--card);
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-
-  /* Priority colour bar on left */
-  .eng-bar {
-    width: 4px; flex-shrink: 0;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-  .prio-high .eng-bar { background: var(--red); }
-  .prio-med  .eng-bar { background: var(--gold-lt); }
-  .prio-low  .eng-bar { background: var(--green); }
-
-  /* Time column */
-  .eng-time-col {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 10px 12px;
-    background: var(--gold-bg);
-    border-right: 1px solid var(--border);
-    min-width: 58px; flex-shrink: 0;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-  .eng-time-full {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px; font-weight: 500;
-    color: var(--gold-dk); line-height: 1;
-    white-space: nowrap;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-
-  /* Body */
-  .eng-body {
-    flex: 1; padding: 9px 10px;
-    display: flex; flex-direction: column; justify-content: center;
-  }
-  .eng-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.35; }
-  .eng-sub   { font-size: 10px; color: var(--text-sub); margin-top: 3px; }
-
-  /* Badge */
   .eng-badge {
-    font-size: 8.5px; font-weight: 700; letter-spacing: .07em;
-    padding: 3px 8px; border-radius: 20px;
-    text-transform: uppercase; flex-shrink: 0;
-    align-self: center; margin-right: 10px;
-    border: 1px solid;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    font-size:10px;
+    font-weight:500;
+    padding:3px 9px;
+    border-radius:4px;
+    white-space:nowrap;
+    flex-shrink:0;
+    align-self:center;
+    letter-spacing:.02em;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
   }
-  .badge-meeting { background: var(--blue-bg);  color: var(--blue);  border-color: #ccdff6; }
-  .badge-visit   { background: var(--green-bg); color: var(--green); border-color: #c2e5d6; }
-  .badge-conf    { background: var(--gold-bg);  color: var(--gold);  border-color: #e8d9ba; }
-  .badge-review  { background: var(--red-bg);   color: var(--red);   border-color: #f2c8c4; }
-  .badge-other   { background: #f5f5f5;          color: var(--muted); border-color: var(--border); }
+  .badge-meeting { background:var(--badge-blue-bg);  color:var(--badge-blue-txt); }
+  .badge-visit   { background:var(--badge-green-bg); color:var(--badge-green-txt); }
+  .badge-conf    { background:var(--badge-amber-bg); color:var(--badge-amber-txt); }
+  .badge-review  { background:var(--badge-red-bg);   color:var(--badge-red-txt); }
+  .badge-other   { background:var(--badge-gray-bg);  color:var(--badge-gray-txt); }
 
   .empty-state {
-    text-align: center; padding: 22px 16px;
-    color: var(--muted); font-size: 11px;
-  }
-  .empty-state .icon { font-size: 22px; margin-bottom: 6px; }
-
-  /* ── UPCOMING PANEL ── */
-  .upcoming-list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-  .upcoming-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 10px 9px 13px;
-    position: relative; overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-  .upcoming-card .uc-stripe {
-    position: absolute; top: 0; left: 0;
-    width: 4px; height: 100%;
-    border-radius: 8px 0 0 8px;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-  .upcoming-card .uc-date  { font-family: 'EB Garamond', serif; font-size: 20px; font-weight: 700; color: var(--text); }
-  .upcoming-card .uc-month { font-size: 9px; color: var(--text-sub); letter-spacing: .08em; text-transform: uppercase; }
-  .upcoming-card .uc-title { font-size: 11px; font-weight: 500; margin-top: 5px; color: var(--text); line-height: 1.3; }
-  .upcoming-card .uc-time  { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text-sub); margin-top: 3px; }
-
-  /* ── PRINT FOOTER ── */
-  .print-footer {
-    display: none;
-    border-top: 1px solid var(--border);
-    padding: 6px 24px;
-    font-size: 9px; color: var(--text-sub);
-    letter-spacing: .05em;
-    justify-content: space-between; align-items: center;
-    flex-shrink: 0;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    padding:24px 0;
+    font-size:12px;
+    color:var(--text-3);
+    text-align:center;
   }
 
-  /* ── BOTTOM BAR ── */
+  /* UPCOMING GRID */
+  .upcoming-grid {
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .uc-card {
+    background:var(--bg);
+    padding:14px 16px;
+  }
+  .uc-date-line {
+    display:flex;
+    align-items:baseline;
+    gap:5px;
+    margin-bottom:8px;
+  }
+  .uc-day {
+    font-family:'Inter Tight', sans-serif;
+    font-size:24px;
+    font-weight:800;
+    color:var(--text);
+    line-height:1;
+    letter-spacing:-.02em;
+  }
+  .uc-month {
+    font-size:10px;
+    font-weight:500;
+    color:var(--text-3);
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .uc-title {
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--text);
+    line-height:1.35;
+    margin-bottom:4px;
+  }
+  .uc-meta {
+    font-size:10px;
+    color:var(--text-3);
+  }
+  .uc-typedot {
+    display:inline-block;
+    width:5px; height:5px;
+    border-radius:50%;
+    margin-right:4px;
+    vertical-align:middle;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  /* BOTTOM BAR */
   .bottom-bar {
-    background: var(--card);
-    border-top: 1px solid var(--border);
-    padding: 7px 22px;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 10px; color: var(--text-sub);
-    flex-shrink: 0;
-  }
-  .bottom-bar .reload-info {
-    margin-left: auto;
-    font-family: 'DM Mono', monospace;
-    font-size: 9px; color: var(--muted);
+    border-top:1px solid var(--border);
+    padding:10px 36px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:11px;
+    color:var(--text-3);
   }
   .btn-sm {
-    background: var(--gold-bg);
-    color: var(--gold-dk); font-weight: 700; font-size: 9px;
-    letter-spacing: .06em; text-transform: uppercase;
-    padding: 4px 10px; border-radius: 5px;
-    border: 1px solid rgba(122,92,34,.3);
-    cursor: pointer; transition: background .2s;
+    background:transparent;
+    color:var(--text-2);
+    font-size:11px;
+    font-weight:500;
+    padding:4px 10px;
+    border-radius:5px;
+    border:1px solid var(--border-strong);
+    cursor:pointer;
   }
-  .btn-sm:hover { background: #f0e4c8; }
+  .btn-sm:hover { background:var(--surface); }
+  .reload-info { margin-left:auto; font-size:10px; color:var(--text-3); }
 
-  /* ── PRINT ── */
+  .print-footer {
+    display:none;
+    border-top:1px solid var(--border);
+    padding:8px 36px;
+    font-size:9px;
+    color:var(--text-3);
+    justify-content:space-between;
+  }
+
   @media print {
-    html { background: #fff; }
-    body { width: 210mm; min-height: 297mm; max-height: 297mm; box-shadow: none; margin: 0; overflow: hidden; }
-    .bottom-bar { display: none !important; }
-    .print-footer { display: flex; }
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    html { background:#fff; }
+    body { box-shadow:none; margin:0; overflow:hidden; max-height:297mm; }
+    .bottom-bar { display:none !important; }
+    .print-footer { display:flex; }
+    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
-
-  ::-webkit-scrollbar{width:3px;height:3px;}
-  ::-webkit-scrollbar-track{background:transparent;}
-  ::-webkit-scrollbar-thumb{background:var(--border-dk);border-radius:3px;}
 </style>
 </head>
 <body>
@@ -334,61 +328,60 @@
   const SHEET_URL = "https://docs.google.com/spreadsheets/d/1sj4pPxk0cLVsJ12aUXnytWJuw1sxUVSRD2MOK4hTgAU/edit?gid=0#gid=0";
 </script>
 
-<div class="track-top"></div>
-<div class="track-stripe"></div>
-
 <header>
-  <div class="title-block">
-    <div class="org-line">Rail Coach Factory, Kapurthala &nbsp;·&nbsp; General Manager's Office</div>
-    <h1>Engagement Schedule</h1>
+  <div>
+    <div class="org-label">Rail Coach Factory, Kapurthala &nbsp;·&nbsp; General Manager's Office</div>
+    <div class="brand-title">Engagement Schedule</div>
   </div>
   <div class="header-right">
     <div id="date-display">Loading…</div>
     <div id="date-sub"></div>
-    <div class="sync-status">
-      <span class="sync-dot" id="sync-dot"></span>
+    <div class="sync-row">
+      <div class="sync-dot" id="sync-dot"></div>
       <span id="sync-label">Initialising…</span>
     </div>
   </div>
 </header>
 
 <main>
-  <!-- TODAY -->
+
   <div>
-    <div class="section-label">Today's Schedule</div>
-    <div class="today-card">
-      <div class="today-header">
-        <div class="today-date-badge" id="hdr-day">--</div>
-        <div class="today-meta">
-          <div class="day-name" id="hdr-dayname">---</div>
-          <div class="month-year" id="hdr-monthyr">---</div>
-        </div>
-        <div class="today-count" id="today-count">— engagements</div>
+    <div class="section-head">
+      <div class="section-title">Today</div>
+    </div>
+    <div class="today-date-bar">
+      <div class="today-num" id="hdr-day">--</div>
+      <div class="today-dayblock">
+        <div class="today-dayname" id="hdr-dayname">---</div>
+        <div class="today-monthyr" id="hdr-monthyr">---</div>
       </div>
-      <div class="today-list" id="today-list">
-        <div class="empty-state"><div class="icon">⏳</div>Loading schedule…</div>
-      </div>
+      <div id="today-count">— engagements</div>
+    </div>
+    <div class="eng-list" id="today-list">
+      <div class="empty-state">Loading schedule…</div>
     </div>
   </div>
 
-  <!-- UPCOMING -->
   <div>
-    <div class="section-label">Upcoming Engagements</div>
-    <div class="upcoming-list" id="upcoming-list">
-      <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:16px;">Loading…</div>
+    <div class="section-head">
+      <div class="section-title">Upcoming</div>
+    </div>
+    <div class="upcoming-grid" id="upcoming-list">
+      <div class="empty-state" style="grid-column:1/-1;padding:20px;">Loading…</div>
     </div>
   </div>
+
 </main>
 
 <div class="bottom-bar">
-  <span>🚂 &nbsp;Auto-syncs every 10 minutes from Google Sheets</span>
-  <button class="btn-sm" onclick="triggerReload()">⟳ Refresh Now</button>
-  <button class="btn-sm" onclick="window.print()" style="margin-left:4px;">🖨 Print</button>
+  <span>Auto-syncs every 10 minutes from Google Sheets</span>
+  <button class="btn-sm" onclick="triggerReload()">↺ Refresh</button>
+  <button class="btn-sm" onclick="window.print()">Print</button>
   <span class="reload-info" id="next-reload">Next sync: —</span>
 </div>
 
 <div class="print-footer">
-  <span>🚂 GM Office, RCF Kapurthala — Engagement Schedule</span>
+  <span>GM Office · RCF Kapurthala · Engagement Schedule</span>
   <span id="print-date-footer"></span>
 </div>
 
@@ -413,7 +406,7 @@ function updateDateDisplay(){
   document.getElementById('date-display').textContent =
     `${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
   document.getElementById('date-sub').textContent =
-    `Week ${getWeekNumber(n)} of ${n.getFullYear()}`;
+    `Week ${getWeekNumber(n)} · ${n.getFullYear()}`;
   document.getElementById('print-date-footer').textContent =
     `Printed: ${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
 }
@@ -425,7 +418,8 @@ document.getElementById('hdr-dayname').textContent = DAYS[NOW.getDay()];
 document.getElementById('hdr-monthyr').textContent = `${MONTHS[NOW.getMonth()]} ${NOW.getFullYear()}`;
 
 function setSyncState(state, msg){
-  document.getElementById('sync-dot').className = 'sync-dot' + (state==='syncing'?' syncing':state==='error'?' error':'');
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot' + (state==='syncing'?' syncing':state==='error'?' error':'');
   document.getElementById('sync-label').textContent = msg;
 }
 
@@ -521,50 +515,57 @@ async function loadData(isAutoReload=false){
   try{
     const text=await fetchWithCORS(url);
     events=parseCSV(text); renderAll();
-    const t=new Date(); setSyncState('ok',`Last synced ${pad(t.getHours())}:${pad(t.getMinutes())}`);
+    const t=new Date(); setSyncState('ok',`Synced ${pad(t.getHours())}:${pad(t.getMinutes())}`);
   }catch(e){ setSyncState('error',`Sync failed — ${e.message.slice(0,40)}`); loadSample(); }
   nextReloadAt=Date.now()+RELOAD_INTERVAL_MS; updateCountdown();
 }
 function triggerReload(){ loadData(false); }
 setInterval(()=>loadData(true),RELOAD_INTERVAL_MS);
 
-function typeClass(t){ const tl=(t||'').toLowerCase(); if(tl.includes('meet')) return 'badge-meeting'; if(tl.includes('visit')||tl.includes('inspect')) return 'badge-visit'; if(tl.includes('conf')||tl.includes('seminar')||tl.includes('workshop')) return 'badge-conf'; if(tl.includes('review')||tl.includes('audit')) return 'badge-review'; return 'badge-other'; }
-function prioClass(p){ const pl=(p||'').toLowerCase(); if(pl==='high') return 'prio-high'; if(pl==='low') return 'prio-low'; return 'prio-med'; }
-function stripeColor(t){ const tl=(t||'').toLowerCase(); if(tl.includes('visit')||tl.includes('inspect')) return 'var(--green)'; if(tl.includes('conf')||tl.includes('seminar')) return 'var(--gold-lt)'; if(tl.includes('review')||tl.includes('audit')) return 'var(--red)'; return 'var(--blue)'; }
-
-function formatTime(raw){
-  if(!raw||raw==='--:--') return {hrs:'--', min:'--'};
-  const parts = raw.split(':');
-  return { hrs: parts[0]||'--', min: parts[1]||'00' };
+function typeClass(t){
+  const tl=(t||'').toLowerCase();
+  if(tl.includes('meet')) return 'badge-meeting';
+  if(tl.includes('visit')||tl.includes('inspect')) return 'badge-visit';
+  if(tl.includes('conf')||tl.includes('seminar')||tl.includes('workshop')) return 'badge-conf';
+  if(tl.includes('review')||tl.includes('audit')) return 'badge-review';
+  return 'badge-other';
+}
+function prioClass(p){
+  const pl=(p||'').toLowerCase();
+  if(pl==='high') return 'prio-high';
+  if(pl==='low')  return 'prio-low';
+  return 'prio-med';
+}
+function typeColor(t){
+  const tl=(t||'').toLowerCase();
+  if(tl.includes('visit')||tl.includes('inspect')) return '#1a6b3a';
+  if(tl.includes('conf')||tl.includes('seminar'))  return '#b8860b';
+  if(tl.includes('review')||tl.includes('audit'))  return '#c0392b';
+  if(tl.includes('meet')) return '#1a4a8a';
+  return '#9a9a9a';
 }
 
 function renderAll(){
   const today=new Date();
   const todayEvts=events.filter(e=>sameDay(e.date,today)).sort((a,b)=>a.time.localeCompare(b.time));
 
-  // Update count badge
   const countEl = document.getElementById('today-count');
-  if(countEl) countEl.textContent = todayEvts.length === 0 ? 'No engagements' : `${todayEvts.length} engagement${todayEvts.length!==1?'s':''}`;
+  if(countEl) countEl.textContent = todayEvts.length===0?'No engagements today':`${todayEvts.length} engagement${todayEvts.length!==1?'s':''}`;
 
   const tl=document.getElementById('today-list');
   if(!todayEvts.length){
-    tl.innerHTML='<div class="empty-state"><div class="icon">✅</div>No engagements scheduled today.</div>';
+    tl.innerHTML='<div class="empty-state">No engagements scheduled today.</div>';
   } else {
-    tl.innerHTML=todayEvts.map(e=>{
-      const t = e.time || '--:--';
-      return `
-      <div class="engagement-row ${prioClass(e.priority)}">
-        <div class="eng-bar"></div>
-        <div class="eng-time-col">
-          <div class="eng-time-full">${t}</div>
-        </div>
-        <div class="eng-body">
+    tl.innerHTML=todayEvts.map(e=>`
+      <div class="eng-row ${prioClass(e.priority)}">
+        <div class="eng-prio-dot"></div>
+        <div class="eng-time">${e.time||'--:--'}</div>
+        <div class="eng-content">
           <div class="eng-title">${e.title}</div>
-          ${e.location?`<div class="eng-sub">${e.location}</div>`:''}
+          ${e.location?`<div class="eng-location">${e.location}</div>`:''}
         </div>
         <span class="eng-badge ${typeClass(e.type)}">${e.type||'Other'}</span>
-      </div>`;
-    }).join('');
+      </div>`).join('');
   }
 
   const todayMid=todayMidnight();
@@ -572,15 +573,18 @@ function renderAll(){
 
   const ul=document.getElementById('upcoming-list');
   if(!upcoming.length){
-    ul.innerHTML='<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:16px;">No upcoming engagements</div>';
+    ul.innerHTML='<div class="empty-state" style="grid-column:1/-1;padding:20px;">No upcoming engagements</div>';
   } else {
     ul.innerHTML=upcoming.map(e=>`
-      <div class="upcoming-card">
-        <div class="uc-stripe" style="background:${stripeColor(e.type)}"></div>
-        <div class="uc-date">${e.date.getDate()}</div>
-        <div class="uc-month">${SMONTH[e.date.getMonth()]} ${e.date.getFullYear()}</div>
+      <div class="uc-card">
+        <div class="uc-date-line">
+          <div class="uc-day">${e.date.getDate()}</div>
+          <div class="uc-month">${SMONTH[e.date.getMonth()]} ${e.date.getFullYear()}</div>
+        </div>
         <div class="uc-title">${e.title}</div>
-        <div class="uc-time">${e.time||'Time TBD'} ${e.location?'• '+e.location:''}</div>
+        <div class="uc-meta">
+          <span class="uc-typedot" style="background:${typeColor(e.type)}"></span>${e.time||'TBD'}${e.location?' · '+e.location:''}
+        </div>
       </div>`).join('');
   }
 }
