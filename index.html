@@ -202,6 +202,29 @@
     text-overflow:ellipsis;
   }
 
+  /* ATTENDEES / COORDINATOR (Today list) */
+  .eng-people {
+    margin-top:8px;
+    padding-left:9px;
+    border-left:2px solid var(--border-strong);
+    font-size:11px;
+    line-height:1.5;
+    color:var(--text-2);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .eng-people-label {
+    display:block;
+    font-size:10px;
+    font-weight:600;
+    color:var(--text-3);
+    margin-bottom:1px;
+  }
+  .eng-people-text {
+    display:block;
+    white-space:pre-line;
+    overflow-wrap:anywhere;
+  }
+
   .eng-badge {
     font-size:10px;
     font-weight:500;
@@ -209,7 +232,7 @@
     border-radius:4px;
     white-space:nowrap;
     flex-shrink:0;
-    align-self:center;
+    align-self:flex-start;
     letter-spacing:.02em;
     -webkit-print-color-adjust:exact; print-color-adjust:exact;
   }
@@ -279,6 +302,31 @@
     margin-right:4px;
     vertical-align:middle;
     -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  /* ATTENDEES / COORDINATOR (Upcoming cards) */
+  .uc-people {
+    margin-top:8px;
+    padding-top:7px;
+    border-top:1px solid var(--border);
+  }
+  .uc-people-label {
+    font-size:9.5px;
+    font-weight:600;
+    color:var(--text-3);
+    margin-bottom:1px;
+  }
+  .uc-people-text {
+    font-size:10px;
+    line-height:1.45;
+    color:var(--text-2);
+    white-space:pre-line;
+    overflow-wrap:anywhere;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
   }
 
   /* BOTTOM BAR */
@@ -394,6 +442,13 @@ const RELOAD_INTERVAL_MS = 10 * 60 * 1000;
 function pad(n){ return String(n).padStart(2,'0'); }
 const NOW = new Date();
 
+// Escape text coming from the sheet before placing it in HTML
+function esc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 function getWeekNumber(d) {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7));
@@ -438,10 +493,36 @@ function toLocalMidnight(d){ return new Date(d.getFullYear(), d.getMonth(), d.ge
 function todayMidnight(){ return toLocalMidnight(new Date()); }
 function sameDay(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
 
+/* CSV parser that handles quoted commas, "" escaped quotes and line breaks inside cells
+   (needed because Attendees/Coordinator cells can run over several lines) */
+function parseCSVRows(text){
+  const rows=[]; let row=[], cur='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){
+      if(c==='"'){
+        if(text[i+1]==='"'){ cur+='"'; i++; } else { inQ=false; }
+      } else { cur+=c; }
+    } else {
+      if(c==='"'){ inQ=true; }
+      else if(c===','){ row.push(cur); cur=''; }
+      else if(c==='\n'||c==='\r'){
+        if(c==='\r'&&text[i+1]==='\n') i++;
+        row.push(cur); cur='';
+        if(row.some(v=>v.trim()!=='')) rows.push(row);
+        row=[];
+      } else { cur+=c; }
+    }
+  }
+  row.push(cur);
+  if(row.some(v=>v.trim()!=='')) rows.push(row);
+  return rows;
+}
+
 function parseCSV(raw){
-  const lines = raw.split(/\r?\n/).filter(l=>l.trim());
-  if(!lines.length) return [];
-  const header = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/"/g,''));
+  const rows = parseCSVRows(raw.replace(/^\uFEFF/,''));
+  if(!rows.length) return [];
+  const header = rows[0].map(h=>h.trim().toLowerCase());
   const idx = {
     date:       header.findIndex(h=>h==='date'),
     time:       header.findIndex(h=>h==='time'),
@@ -450,32 +531,28 @@ function parseCSV(raw){
     type:       header.findIndex(h=>h==='type'||h.includes('category')),
     priority:   header.findIndex(h=>h.includes('priority')),
     visibility: header.findIndex(h=>h.includes('visibility')),
+    attendees:  header.findIndex(h=>h.includes('attendee')||h.includes('coordinator')),
   };
+  const cell = (r,i)=> i>=0 ? (r[i]||'').trim() : '';
   const parsed=[];
-  for(let i=1;i<lines.length;i++){
-    const cols=splitCSVLine(lines[i]);
-    const dateStr=idx.date>=0?cols[idx.date]?.replace(/"/g,'').trim():'';
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i];
+    const dateStr=cell(r,idx.date);
     if(!dateStr) continue;
     const d=parseDate(dateStr);
     if(!d||isNaN(d)) continue;
-    const visibility=idx.visibility>=0?(cols[idx.visibility]||'').replace(/"/g,'').trim().toLowerCase():'';
-    if(visibility==='no') continue;
+    if(cell(r,idx.visibility).toLowerCase()==='no') continue;
     parsed.push({
       date:d,
-      time:     idx.time>=0    ?(cols[idx.time]||'').replace(/"/g,'').trim()    :'',
-      title:    idx.title>=0   ?(cols[idx.title]||'').replace(/"/g,'').trim()   :'Engagement',
-      location: idx.location>=0?(cols[idx.location]||'').replace(/"/g,'').trim():'',
-      type:     idx.type>=0    ?(cols[idx.type]||'').replace(/"/g,'').trim()    :'Other',
-      priority: idx.priority>=0?(cols[idx.priority]||'').replace(/"/g,'').trim().toLowerCase():'med',
+      time:      cell(r,idx.time),
+      title:     cell(r,idx.title) || 'Engagement',
+      location:  cell(r,idx.location),
+      type:      cell(r,idx.type) || 'Other',
+      priority:  cell(r,idx.priority).toLowerCase() || 'med',
+      attendees: cell(r,idx.attendees),
     });
   }
   return parsed;
-}
-
-function splitCSVLine(line){
-  const r=[]; let cur=''; let inQ=false;
-  for(let c of line){ if(c==='"'){inQ=!inQ;} else if(c===','&&!inQ){r.push(cur);cur='';} else{cur+=c;} }
-  r.push(cur); return r;
 }
 
 function parseDate(s){
@@ -562,12 +639,13 @@ function renderAll(){
     tl.innerHTML=todayEvts.map(e=>`
       <div class="eng-row ${prioClass(e.priority)}">
         <div class="eng-prio-dot"></div>
-        <div class="eng-time">${e.time||'--:--'}</div>
+        <div class="eng-time">${esc(e.time)||'--:--'}</div>
         <div class="eng-content">
-          <div class="eng-title">${e.title}</div>
-          ${e.location?`<div class="eng-location">${e.location}</div>`:''}
+          <div class="eng-title">${esc(e.title)}</div>
+          ${e.location?`<div class="eng-location">${esc(e.location)}</div>`:''}
+          ${e.attendees?`<div class="eng-people"><span class="eng-people-label">Attendees / Coordinator</span><span class="eng-people-text">${esc(e.attendees)}</span></div>`:''}
         </div>
-        <span class="eng-badge ${typeClass(e.type)}">${e.type||'Other'}</span>
+        <span class="eng-badge ${typeClass(e.type)}">${esc(e.type)||'Other'}</span>
       </div>`).join('');
   }
 
@@ -584,10 +662,11 @@ function renderAll(){
           <div class="uc-day">${e.date.getDate()}</div>
           <div class="uc-month">${SMONTH[e.date.getMonth()]} ${e.date.getFullYear()}</div>
         </div>
-        <div class="uc-title">${e.title}</div>
+        <div class="uc-title">${esc(e.title)}</div>
         <div class="uc-meta">
-          <span class="uc-typedot" style="background:${typeColor(e.type)}"></span>${e.time||'TBD'}${e.location?' · '+e.location:''}
+          <span class="uc-typedot" style="background:${typeColor(e.type)}"></span>${esc(e.time)||'TBD'}${e.location?' · '+esc(e.location):''}
         </div>
+        ${e.attendees?`<div class="uc-people"><div class="uc-people-label">Attendees / Coordinator</div><div class="uc-people-text">${esc(e.attendees)}</div></div>`:''}
       </div>`).join('');
   }
 }
@@ -596,18 +675,18 @@ function loadSample(){
   const n=new Date(); const y=n.getFullYear(),mo=n.getMonth(),nd=n.getDate();
   const d=(day)=>new Date(y,mo,day); const t=(h,m)=>`${pad(h)}:${pad(m)}`;
   events=[
-    {date:d(nd),   time:t(9,30), title:'Divisional Managers Briefing',                   location:'Conference Room A, HQ',         type:'Meeting',   priority:'high'},
-    {date:d(nd),   time:t(11,0), title:'Infrastructure Review — Goods Shed Modernisation',location:'Yard Office',                   type:'Review',    priority:'high'},
-    {date:d(nd),   time:t(14,0), title:'Parliamentary Committee Interaction (Virtual)',   location:'Video Conference',               type:'Conference',priority:'med'},
-    {date:d(nd),   time:t(16,30),title:'Press Briefing — New Train Services',             location:'Media Centre',                   type:'Other',     priority:'med'},
-    {date:d(nd+1), time:t(10,0), title:'Site Visit — Platform Expansion, Ambala',         location:'Ambala Station',                 type:'Site Visit',priority:'high'},
-    {date:d(nd+2), time:t(9,0),  title:'Safety Audit — Loco Maintenance Depot',           location:'Ludhiana Depot',                 type:'Review',    priority:'high'},
-    {date:d(nd+3), time:t(11,30),title:'Staff Welfare Meeting',                           location:'Training Institute, Chandigarh', type:'Meeting',   priority:'low'},
-    {date:d(nd+4), time:t(9,0),  title:'Zonal Railway Conference, New Delhi',              location:'Rail Bhawan, New Delhi',         type:'Conference',priority:'high'},
-    {date:d(nd+5), time:t(15,0), title:'Inauguration — Passenger Amenities Upgrade',      location:'Jalandhar City Station',          type:'Site Visit',priority:'med'},
-    {date:d(nd+7), time:t(10,30),title:'Review of Revenue Performance — Q3',              location:'HQ Board Room',                  type:'Review',    priority:'high'},
-    {date:d(nd+9), time:t(14,0), title:'Workshop: Cybersecurity in Railway IT',            location:'IRISET, Secunderabad',            type:'Conference',priority:'low'},
-    {date:d(nd+12),time:t(9,0),  title:'Bridge Inspection — Beas River',                  location:'Beas, Punjab',                   type:'Site Visit',priority:'med'},
+    {date:d(nd),   time:t(9,30), title:'Divisional Managers Briefing',                   location:'Conference Room A, HQ',         type:'Meeting',   priority:'high', attendees:'All HODs and Divisional Managers\nCoordinator: Secretary to GM'},
+    {date:d(nd),   time:t(11,0), title:'Infrastructure Review — Goods Shed Modernisation',location:'Yard Office',                   type:'Review',    priority:'high', attendees:'CWM, Dy. CE/Const., Sr. DEN\nCoordinator: Dy. CE/Const.'},
+    {date:d(nd),   time:t(14,0), title:'Parliamentary Committee Interaction (Virtual)',   location:'Video Conference',               type:'Conference',priority:'med',  attendees:'GM, PCPO, CVO\nCoordinator: Secretary to GM'},
+    {date:d(nd),   time:t(16,30),title:'Press Briefing — New Train Services',             location:'Media Centre',                   type:'Other',     priority:'med',  attendees:'GM, CPRO\nCoordinator: CPRO'},
+    {date:d(nd+1), time:t(10,0), title:'Site Visit — Platform Expansion, Ambala',         location:'Ambala Station',                 type:'Site Visit',priority:'high', attendees:'DRM Ambala, Sr. DEN/Co-ord, Sr. DOM'},
+    {date:d(nd+2), time:t(9,0),  title:'Safety Audit — Loco Maintenance Depot',           location:'Ludhiana Depot',                 type:'Review',    priority:'high', attendees:'CSO, Sr. DME, Safety Counsellor'},
+    {date:d(nd+3), time:t(11,30),title:'Staff Welfare Meeting',                           location:'Training Institute, Chandigarh', type:'Meeting',   priority:'low',  attendees:'Welfare Inspectors, Union Representatives'},
+    {date:d(nd+4), time:t(9,0),  title:'Zonal Railway Conference, New Delhi',              location:'Rail Bhawan, New Delhi',         type:'Conference',priority:'high', attendees:'GMs of all Zones\nCoordinator: ED/Coord., Railway Board'},
+    {date:d(nd+5), time:t(15,0), title:'Inauguration — Passenger Amenities Upgrade',      location:'Jalandhar City Station',          type:'Site Visit',priority:'med',  attendees:'Local MP and MLA, DRM Ferozepur'},
+    {date:d(nd+7), time:t(10,30),title:'Review of Revenue Performance — Q3',              location:'HQ Board Room',                  type:'Review',    priority:'high', attendees:'FA&CAO, PCCM, PCOM'},
+    {date:d(nd+9), time:t(14,0), title:'Workshop: Cybersecurity in Railway IT',            location:'IRISET, Secunderabad',            type:'Conference',priority:'low',  attendees:'CMD, Sr. DSTE (Telecom)'},
+    {date:d(nd+12),time:t(9,0),  title:'Bridge Inspection — Beas River',                  location:'Beas, Punjab',                   type:'Site Visit',priority:'med',  attendees:'CBE, Sr. DEN/Bridges'},
   ];
   renderAll();
 }
