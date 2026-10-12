@@ -363,7 +363,8 @@
 
   @media print {
     html { background:#fff; }
-    body { box-shadow:none; margin:0; overflow:hidden; max-height:297mm; }
+    body { box-shadow:none; margin:0; }
+    .eng-row, .uc-card { break-inside:avoid; page-break-inside:avoid; }
     .bottom-bar { display:none !important; }
     .print-footer { display:flex; }
     * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -541,7 +542,7 @@ function parseCSV(raw){
     if(!dateStr) continue;
     const d=parseDate(dateStr);
     if(!d||isNaN(d)) continue;
-    if(cell(r,idx.visibility).toLowerCase()==='no') continue;
+    if(idx.visibility>=0 && cell(r,idx.visibility).toLowerCase()!=='yes') continue;
     parsed.push({
       date:d,
       time:      cell(r,idx.time),
@@ -650,7 +651,7 @@ function renderAll(){
   }
 
   const todayMid=todayMidnight();
-  const upcoming=events.filter(e=>toLocalMidnight(e.date)>todayMid).sort((a,b)=>a.date-b.date||a.time.localeCompare(b.time)).slice(0,6);
+  const upcoming=events.filter(e=>toLocalMidnight(e.date)>todayMid).sort((a,b)=>a.date-b.date||a.time.localeCompare(b.time));
 
   const ul=document.getElementById('upcoming-list');
   if(!upcoming.length){
